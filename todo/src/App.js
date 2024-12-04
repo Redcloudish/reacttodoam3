@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import TodoBanner from './TodoBanner';
 import TodoCreator from './TodoCreator';
 import TodoRow from './TodoRow';
+import VisibilityControl from './VisibilityControl';
 
 function App() {
 
@@ -14,6 +15,8 @@ function App() {
     {action: "Collect Tickets", done: true},
     {action: "Call Joe", done: false}
   ]);
+
+  const[showCompleted, setShowCompleted] = useState(true); 
 
   // const [newItemText, setNewItemText] = useState(""); // change 2
 
@@ -46,7 +49,7 @@ function App() {
     ));
   };
   
-  const todoTableRows = () => todoItems.map(item =>
+  const todoTableRows = (doneValue) => todoItems.filter(item =>item.done === doneValue).map(item =>
     <TodoRow key={ item.action } item={ item } toggle={ toggleTodo } />
   )
 
@@ -69,10 +72,33 @@ function App() {
             </tr>
           </thead>
           <tbody>
-            { todoTableRows() }
+            { todoTableRows(false) }
           </tbody>
         </table>
-        
+
+        <div className="bg-secondary text-white text-center p-2">
+          <VisibilityControl
+            description="Completed Tasks"
+            isChecked={showCompleted}
+            callback={(checked) => setShowCompleted(checked)} />
+        </div>
+
+          { showCompleted &&
+          <table className="table table-striped table-bordered">
+
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Done</th>
+            </tr>
+            </thead>
+            <tbody>
+              { todoTableRows(true)}
+            </tbody>
+          </table>
+
+          }        
+
       </div>
     </div>
   );
