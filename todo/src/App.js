@@ -8,96 +8,73 @@ import VisibilityControl from './VisibilityControl';
 
 function App() {
 
-  const [userName] = useState("Adam"); // change 1
+  const [userName] = useState("Customer Couples");
 
-  const [todoItems, setTodoItems] = useState([{action: "Buy Flowers", done: false},
-    {action: "Get Shoes", done: false},
-    {action: "Collect Tickets", done: true},
-    {action: "Call Joe", done: false}
+  const [todoItems, setTodoItems] = useState([
+    { action: "Buy Flowers", done: false },
+    { action: "Go on Dinner date", done: false },
+    { action: "Buy Romantic Candles", done: true },
+    { action: "Book VIP Extra Package", done: false }
   ]);
 
   const [showCompleted, setShowCompleted] = useState(true);
 
-  // const [newItemText, setNewItemText] = useState(""); // change 2
+  useEffect(() => {
+    try {
+      const data = localStorage.getItem("todos");
+      if (data) {
+        const parsedData = JSON.parse(data);
+        if (Array.isArray(parsedData)) {
+          setTodoItems(parsedData);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load todos:", error);
+    }
+  }, []);
 
-  // const changeStateData = () => {
-  //   setUserName((prevName) => (prevName === "Adam" ? "Bob" : "Adam")); // change 3
-  // };
-
-  // const updateNewTextValue = (event) => { // change 4
-  //   setNewItemText(event.target.value);
-  // };
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todoItems));
+  }, [todoItems]);
 
   const createNewTodo = (task) => {
-    if (!todoItems
-      .find((item) => item.action === task))    
-    {
-      const updatedTodos = [...todoItems, {action: task, done: false}];
+    if (!todoItems.find(item => item.action === task)) {
+      const updatedTodos = [...todoItems, { action: task, done: false }];
       setTodoItems(updatedTodos);
       localStorage.setItem("todos", JSON.stringify(updatedTodos));
     }
   };
 
   const toggleTodo = (todo) => {
-    const updatedTodos = todoItems.map((item) =>    
-      item.action === todo.action
-        ? { ...item, done: !item.done }
-        : item
+    const updatedTodos = todoItems.map(item =>
+      item.action === todo.action ? { ...item, done: !item.done } : item
     );
     setTodoItems(updatedTodos);
-      localStorage.setItem("todos", JSON.stringify(updatedTodos));
+    localStorage.setItem("todos", JSON.stringify(updatedTodos));
   };
-  
-  const todoTableRows = (doneValue) => todoItems.filter(item => item.done === doneValue).map(item =>
-    <TodoRow key={ item.action } item={ item } toggle={ toggleTodo } />
-  )
 
-  useEffect(() => {
-    try {
-      const data = localStorage.getItem("todos");
-      if(data)
-      {
-        const parsedData = JSON.parse(data);
-        if(Array.isArray(parsedData)) {
-          setTodoItems(parsedData);
-        }
-      }
-      else
-      {
-        [userName] = "Adam";
-        [todoItems] = [{action: "Buy Flowers", done: false},
-          {action: "Get Shoes", done: false},
-          {action: "Collect Tickets", done: true},
-          {action: "Call Joe", done: false}
-        ];
-        [showCompleted] = true;
-      }
-    }
-    catch(error) {
-      console.error("Failed to load todos:", error);
-    }
-  })
+  const todoTableRows = (doneValue) => todoItems
+    .filter(item => item.done === doneValue)
+    .map(item => <TodoRow key={item.action} item={item} toggle={toggleTodo} />);
 
   return (
     <div>
       <TodoBanner userName={userName} todoItems={todoItems} />
 
-      <div class="m-3">
+      <div className="m-3">
         <TodoCreator callback={createNewTodo} />
       </div>
 
-      <div class="container-fluid">
-        
-
+      <div className="container-fluid">
         <table className="table table-striped table-bordered">
           <thead>
             <tr>
-              <th style={{width: "75%"}}>Description</th>
-              <th style={{width: "25%"}}>Done</th>
+              <th style={{ width: "75%" }}>Description</th>
+              <th style={{ width: "25%" }}>Done</th>
             </tr>
           </thead>
           <tbody>
-            { todoTableRows(false) }
+            {todoTableRows(false)}
           </tbody>
         </table>
 
@@ -105,23 +82,23 @@ function App() {
           <VisibilityControl
             description="Completed Tasks"
             isChecked={showCompleted}
-            callback={(checked) => setShowCompleted(checked)} />
+            callback={(checked) => setShowCompleted(checked)}
+          />
         </div>
 
-        { showCompleted &&
-        <table className="table table-striped table-bordered">
-          <thead>
-            <tr>
-              <th style={{width: "75%"}} >Description</th>
-              <th style={{width: "25%"}}>Done</th>
-            </tr>
-          </thead>
-          <tbody>
-            { todoTableRows(true) }
-          </tbody>
-        </table>
-        }
-        
+        {showCompleted && (
+          <table className="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th style={{ width: "75%" }}>Description</th>
+                <th style={{ width: "25%" }}>Done</th>
+              </tr>
+            </thead>
+            <tbody>
+              {todoTableRows(true)}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
